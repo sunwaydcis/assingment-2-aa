@@ -89,7 +89,6 @@ object MainApp {
         f"with a total estimated profit of SGD ${mostProfitableHotel._2}%.2f"
     )
 
-
     source.close()
   }
 }
