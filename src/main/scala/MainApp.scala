@@ -26,22 +26,24 @@ object MainApp {
     discount.replace("%", "").toDouble / 100
   }
 
-  // Calculate effective price paid by customer
+  // Calculate the effective price paid by a customer (after discount & profit margin)
   def effectivePrice(b: Booking): Double = {
     val discountRate = parseDiscount(b.discount)
     b.bookingPrice * (1 - discountRate) * (1 - b.profitMargin)
+  }
+
+  // Calculate the profit for a single booking (considering visitors)
+  def bookingProfit(b: Booking): Double = {
+    val pricePaid = b.bookingPrice * (1 - parseDiscount(b.discount)) // Step 1: Price paid
+    pricePaid * b.profitMargin * b.visitors                        // Step 2 & 3: Profit × visitors
   }
 
   def main(args: Array[String]): Unit = {
 
     val filename = "Hotel_Dataset.csv"
     val source = Source.fromFile(filename, "ISO-8859-1")
-
-
     val dataLines = source.getLines().drop(1)
-
     val bookings = dataLines.map(parseBooking).toList
-
     println(s"Total bookings loaded: ${bookings.size}")
 
     // Question 1 Answer: Country with highest number of bookings
@@ -73,6 +75,20 @@ object MainApp {
       s"Most economical hotel (on average): ${mostEconomicalHotel._1} " +
         s"with an average effective price of SGD ${mostEconomicalHotel._2}"
     )
+
+    // Question 3: Most profitable hotel (considering visitors & profit margin)
+
+    val hotelProfits = bookings.groupBy(_.hotelName).map { case (hotel, hotelBookings) =>
+      (hotel, hotelBookings.map(bookingProfit).sum)
+    }
+
+    val mostProfitableHotel = hotelProfits.maxBy(_._2)
+
+    println(
+      s"Most profitable hotel (considering visitors): ${mostProfitableHotel._1} " +
+        f"with a total estimated profit of SGD ${mostProfitableHotel._2}%.2f"
+    )
+
 
     source.close()
   }
