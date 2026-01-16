@@ -9,5 +9,6 @@ case class Booking(
                     bookingPrice: Double,
                     discount: String,
                     gst: Double,
-                    profitMargin: Double
+                    profitMargin: Double,
+                    visitors: Int // No. of People
                   )
